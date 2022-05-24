@@ -188,8 +188,6 @@ class PyArlo(object):
         self._started = False
         self._refresh_devices()
 
-        self._devices = [x for x in self._devices if x['deviceId'] not in ['51D41973A09C0', '51D4197EA09D9']]
-
         for device in self._devices:
 
             device_id = device.get("deviceId", None)
@@ -301,8 +299,12 @@ class PyArlo(object):
             self._devices = []
         self.vdebug("devices={}".format(pprint.pformat(self._devices)))
 
+
         # JAOUEN
-        self._devices = [x for x in self._devices if x['deviceId'] not in ['51D41973A09C0', '51D4197EA09D9']]
+        self._devices = [x for x in self._devices if x['deviceId'] not in self._cfg.removed_device_list]
+        # JAOUEN
+        # self._devices = [x for x in self._devices if x['deviceId'] not in ['51D41973A09C0', '51D4197EA09D9']]
+
 
         # Newer devices include information in this response. Be sure to update it.
         for device in self._devices:

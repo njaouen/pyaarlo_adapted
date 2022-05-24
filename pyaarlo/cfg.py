@@ -246,3 +246,7 @@ class ArloCfg(object):
     @property
     def use_mqtt(self):
         return self._kw.get("backend", "mqtt") == "mqtt"
+
+    @property
+    def removed_device_list(self):
+        return self._kw.get("removed_device_list", [])
