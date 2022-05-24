@@ -195,34 +195,31 @@ class ArloCamera(ArloChildDevice):
     def _update_image(self):
         # Get image and date, if fails ignore
 
-        print(LAST_IMAGE_KEY)
+        print('HEY _update_image')
+        img, date = http_get_img(self._load(LAST_IMAGE_KEY, None))
+        print('image received')
+        # print(img)
+        # import PIL.Image as Image
+        # import io
+        # img_byte = io.BytesIO(img)
+        # image = Image.open(img_byte)
+        # image.save('./img.png')
 
-        if '51D4197LA0941' in self._load(LAST_IMAGE_KEY, None) or '51D30C78A0343' in self._load(LAST_IMAGE_KEY, None):
-            print(self._load(LAST_IMAGE_KEY, None))
-            img, date = http_get_img(self._load(LAST_IMAGE_KEY, None))
-            print('image received')
-            # print(img)
-            # import PIL.Image as Image
-            # import io
-            # img_byte = io.BytesIO(img)
-            # image = Image.open(img_byte)
-            # image.save('./img.png')
+        if img is None:
+            self._arlo.debug("failed to load image for " + self.name)
+            return
 
-            if img is None:
-                self._arlo.debug("failed to load image for " + self.name)
-                return
-
-            # Always make this the latest thumbnail image.
-            if self._snapshot_time < date:
-                self._snapshot_time = date
-                date = date.strftime(self._arlo.cfg.last_format)
-                self._arlo.debug(f"updating image for {self.name} ({date})")
-                self._save_and_do_callbacks(LAST_IMAGE_SRC_KEY, "capture/" + date)
-                self._save_and_do_callbacks(LAST_CAPTURE_KEY, date)
-                self._save_and_do_callbacks(LAST_IMAGE_DATA_KEY, img)
-            else:
-                date = date.strftime(self._arlo.cfg.last_format)
-                self._arlo.vdebug(f"ignoring image for {self.name} ({date})")
+        # Always make this the latest thumbnail image.
+        if self._snapshot_time < date:
+            self._snapshot_time = date
+            date = date.strftime(self._arlo.cfg.last_format)
+            self._arlo.debug(f"updating image for {self.name} ({date})")
+            self._save_and_do_callbacks(LAST_IMAGE_SRC_KEY, "capture/" + date)
+            self._save_and_do_callbacks(LAST_CAPTURE_KEY, date)
+            self._save_and_do_callbacks(LAST_IMAGE_DATA_KEY, img)
+        else:
+            date = date.strftime(self._arlo.cfg.last_format)
+            self._arlo.vdebug(f"ignoring image for {self.name} ({date})")
 
 
     # Update the last snapshot
@@ -231,13 +228,13 @@ class ArloCamera(ArloChildDevice):
         print('HEY _update_snapshot')
         # Get image and date, if fails ignore.
         img, date = http_get_img(self._load(SNAPSHOT_KEY, None), ignore_date)
-        print('image received')
-        print(img)
-        import PIL.Image as Image
-        import io
-        img_byte = io.BytesIO(img)
-        image = Image.open(img_byte)
-        image.save('./img.png')
+        print('snapshot received')
+        # print(img)
+        # import PIL.Image as Image
+        # import io
+        # img_byte = io.BytesIO(img)
+        # image = Image.open(img_byte)
+        # image.save('./img.png')
 
         if img is None:
             self._arlo.debug("failed to load snapshot for " + self.name)
