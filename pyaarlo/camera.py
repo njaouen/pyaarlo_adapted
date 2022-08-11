@@ -227,14 +227,9 @@ class ArloCamera(ArloChildDevice):
 
         print('HEY _update_snapshot')
         # Get image and date, if fails ignore.
+        print('SNAPSHOT_KEY: ', SNAPSHOT_KEY)
         img, date = http_get_img(self._load(SNAPSHOT_KEY, None), ignore_date)
         print('snapshot received')
-        # print(img)
-        # import PIL.Image as Image
-        # import io
-        # img_byte = io.BytesIO(img)
-        # image = Image.open(img_byte)
-        # image.save('./img.png')
 
         if img is None:
             self._arlo.debug("failed to load snapshot for " + self.name)
@@ -1125,7 +1120,9 @@ class ArloCamera(ArloChildDevice):
         return not self._load(PRIVACY_KEY, False)
 
 
-
+    def is_on_test(self):
+        """Returns `True` if the camera turned on."""
+        return not self._load(PRIVACY_KEY, False)
 
     def turn_on(self):
         """Turn the camera on."""

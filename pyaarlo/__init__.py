@@ -192,14 +192,12 @@ class PyArlo(object):
 
             device_id = device.get("deviceId", None)
             print('--------------------> device: ', device_id)
-
             dname = device.get("deviceName")
             dtype = device.get("deviceType")
             if device.get("state", "unknown") != "provisioned":
                 self.info("skipping " + dname + ": state unknown")
                 continue
 
-            # This needs it's own code now... Does no parent indicate a base station???
             if (
                 dtype == "basestation"
                 or device.get("modelId") == "ABC1000"
@@ -207,7 +205,9 @@ class PyArlo(object):
                 or dtype == "arloq"
                 or dtype == "arloqs"
             ):
+                print('device name: ', dname)
                 self._bases.append(ArloBase(dname, self, device))
+
             # Newer devices can connect directly to wifi and can be its own base station,
             # it can also be assigned to a real base station
             if (
@@ -252,32 +252,30 @@ class PyArlo(object):
         if self._cfg.synchronous_mode:
             # Synchronous; run them one after the other
             self.debug("getting initial settings")
-            print('getting initial settings')
-            self._refresh_bases(initial=True)
-            self._refresh_modes()
-            self._refresh_ambient_sensors()
-            self._refresh_doorbells()
-            self._ml.load()
-            self._refresh_camera_thumbnails(True)
-            self._refresh_camera_media(True)
-            self._initial_refresh_done()
-            print('initial settings done')
+            # self._refresh_bases(initial=True)
+            # self._refresh_modes()
+            # self._refresh_ambient_sensors()
+            # self._refresh_doorbells()
+            # self._ml.load()
+            # self._refresh_camera_thumbnails(True)
+            # self._refresh_camera_media(True)
+            # self._initial_refresh_done()
         else:
             # Asynchronous; queue them to run one after the other
             self.debug("queueing initial settings")
-            self._bg.run(self._refresh_bases, initial=True)
-            self._bg.run(self._refresh_modes)
-            self._bg.run(self._refresh_ambient_sensors)
-            self._bg.run(self._refresh_doorbells)
-            self._bg.run(self._ml.load)
-            self._bg.run(self._refresh_camera_thumbnails, wait=False)
-            self._bg.run(self._refresh_camera_media, wait=False)
-            self._bg.run(self._initial_refresh_done)
+            # self._bg.run(self._refresh_bases, initial=True)
+            # self._bg.run(self._refresh_modes)
+            # self._bg.run(self._refresh_ambient_sensors)
+            # self._bg.run(self._refresh_doorbells)
+            # self._bg.run(self._ml.load)
+            # self._bg.run(self._refresh_camera_thumbnails, wait=False)
+            # self._bg.run(self._refresh_camera_media, wait=False)
+            # self._bg.run(self._initial_refresh_done)
 
         # Register house keeping cron jobs.
-        self.debug("registering cron jobs")
-        self._bg.run_every(self._fast_refresh, FAST_REFRESH_INTERVAL)
-        self._bg.run_every(self._slow_refresh, SLOW_REFRESH_INTERVAL)
+        # self.debug("registering cron jobs")
+        # self._bg.run_every(self._fast_refresh, FAST_REFRESH_INTERVAL)
+        # self._bg.run_every(self._slow_refresh, SLOW_REFRESH_INTERVAL)
 
         # Wait for initial refresh
         if self._cfg.wait_for_initial_setup:
@@ -293,18 +291,31 @@ class PyArlo(object):
 
     def _refresh_devices(self):
         url = DEVICES_PATH + "?t={}".format(time_to_arlotime())
+        print('url to get devices ', url)
+        print('DEVICES_PATH: ', DEVICES_PATH)
         self._devices = self._be.get(url)
+        # self._devices[1]['deviceName'] = 'ewaste_camera_test'
+        # self._devices[1]['state'] = 'provisioned'
+
         if not self._devices:
             self.warning("No devices returned from " + url)
             self._devices = []
         self.vdebug("devices={}".format(pprint.pformat(self._devices)))
 
-
         # JAOUEN
         self._devices = [x for x in self._devices if x['deviceId'] not in self._cfg.removed_device_list]
-        # JAOUEN
-        # self._devices = [x for x in self._devices if x['deviceId'] not in ['51D41973A09C0', '51D4197EA09D9']]
 
+        # print('self')
+        # print(self)
+
+        # for device in self._devices:
+        #     print(device)
+        #     print('device: ')
+        #     print(device['deviceId'])
+        #     print('apn: ', device['connectivity']['apn'])
+        #     print('imei: ', device['connectivity']['imei'])
+        #     print('signal strength: ', device['connectivity']['signalStrength'])
+        #     print('iccid: ', device['connectivity']['iccid'])
 
         # Newer devices include information in this response. Be sure to update it.
         for device in self._devices:
